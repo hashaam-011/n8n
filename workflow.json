@@ -1,0 +1,175 @@
+{
+     "name": "Amazon Review Sentiment Workflow",
+     "nodes": [
+       {
+         "parameters": {
+           "triggerTimes": {
+             "mode": "everyDay",
+             "hour": 0,
+             "minute": 0
+           }
+         },
+         "id": "1",
+         "name": "Schedule Trigger",
+         "type": "n8n-nodes-base.scheduleTrigger",
+         "typeVersion": 1,
+         "position": [240, 300]
+       },
+       {
+         "parameters": {
+           "url": "http://localhost:3000/reviews?asin=B123456789",
+           "options": {
+             "retryOnFail": true,
+             "maxRetries": 3,
+             "retryDelay": 2000
+           },
+           "responseFormat": "json"
+         },
+         "id": "2",
+         "name": "Fetch Reviews",
+         "type": "n8n-nodes-base.httpRequest",
+         "typeVersion": 2,
+         "position": [460, 300]
+       },
+       {
+         "parameters": {
+           "operation": "chat",
+           "model": "gpt-4",
+           "messages": [
+             {
+               "role": "user",
+               "content": "Analyze the following review and return JSON with sentiment (positive/negative/neutral) and complaint_bucket: {{$node[\"Fetch Reviews\"].json[\"reviews\"][0][\"text\"]}}"
+             }
+           ]
+         },
+         "id": "3",
+         "name": "Analyze Sentiment",
+         "type": "n8n-nodes-base.openAi",
+         "typeVersion": 1,
+         "position": [680, 300],
+         "credentials": {
+           "openAiApi": {
+             "apiKey": "{{$secrets.openai_api_key}}"
+           }
+         }
+       },
+       {
+         "parameters": {
+           "operation": "append",
+           "spreadsheetId": "{{$secrets.google_sheets_id}}",
+           "range": "Sheet1!A:D",
+           "options": {},
+           "values": {
+             "data": [
+               [
+                 "={{$node[\"Analyze Sentiment\"].json[\"sentiment\"]}}",
+                 "={{$node[\"Analyze Sentiment\"].json[\"complaint_bucket\"]}}",
+                 "={{$node[\"Fetch Reviews\"].json[\"reviews\"][0][\"review_id\"]}}",
+                 "={{$node[\"Fetch Reviews\"].json[\"reviews\"][0][\"date\"]}}"
+               ]
+             ]
+           }
+         },
+         "id": "4",
+         "name": "Create a spreadsheet",
+         "type": "n8n-nodes-base.googleSheets",
+         "typeVersion": 2,
+         "position": [900, 300],
+         "credentials": {
+           "googleSheetsOAuth2Api": {
+             "accessToken": "{{$secrets.google_sheets_token}}"
+           }
+         }
+       },
+       {
+         "parameters": {
+           "conditions": {
+             "boolean": [
+               {
+                 "value1": "={{$node[\"Analyze Sentiment\"].json[\"sentiment\"] === \"negative\" && $node[\"Fetch Reviews\"].json[\"reviews\"].length > 10}}",
+                 "value2": true
+               }
+             ]
+           }
+         },
+         "id": "5",
+         "name": "Spike Detection",
+         "type": "n8n-nodes-base.if",
+         "typeVersion": 1,
+         "position": [1120, 300]
+       },
+       {
+         "parameters": {
+           "channel": "C09711SLRCL",
+           "text": "Negative review surge detected for ASIN B123456789! Check Google Sheets for details.",
+           "blocks": []
+         },
+         "id": "6",
+         "name": "Slack Alert",
+         "type": "n8n-nodes-base.slack",
+         "typeVersion": 1,
+         "position": [1340, 300],
+         "credentials": {
+           "slackApi": {
+             "accessToken": "{{$secrets.slack_token}}"
+           }
+         }
+       }
+     ],
+     "connections": {
+       "Schedule Trigger": {
+         "main": [
+           [
+             {
+               "node": "Fetch Reviews",
+               "type": "main",
+               "index": 0
+             }
+           ]
+         ]
+       },
+       "Fetch Reviews": {
+         "main": [
+           [
+             {
+               "node": "Analyze Sentiment",
+               "type": "main",
+               "index": 0
+             }
+           ]
+         ]
+       },
+       "Analyze Sentiment": {
+         "main": [
+           [
+             {
+               "node": "Create a spreadsheet",
+               "type": "main",
+               "index": 0
+             },
+             {
+               "node": "Spike Detection",
+               "type": "main",
+               "index": 0
+             }
+           ]
+         ]
+       },
+       "Spike Detection": {
+         "main": [
+           [
+             {
+               "node": "Slack Alert",
+               "type": "main",
+               "index": 0
+             }
+           ]
+         ]
+       }
+     },
+     "settings": {
+       "timezone": "UTC",
+       "saveExecutionProgress": true
+     }
+   }
+   

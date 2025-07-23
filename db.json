@@ -1,0 +1,88 @@
+{
+    "reviews": [
+      {
+        "id": 1,
+        "asin": "B123456789",
+        "text": "This kettle is amazing! Heats up quickly and looks great on my counter.",
+        "date": "2025-07-01",
+        "rating": 5
+      },
+      {
+        "id": 2,
+        "asin": "B123456789",
+        "text": "The kettle stopped working after a week. Poor quality!",
+        "date": "2025-07-02",
+        "rating": 1
+      },
+      {
+        "id": 3,
+        "asin": "B123456789",
+        "text": "It’s okay, but the noise is a bit loud. Works fine otherwise.",
+        "date": "2025-07-03",
+        "rating": 3
+      },
+      {
+        "id": 4,
+        "asin": "B123456789",
+        "text": "Love the design, but it leaks water when pouring.",
+        "date": "2025-07-04",
+        "rating": 2
+      },
+      {
+        "id": 5,
+        "asin": "B123456789",
+        "text": "Excellent product! Fast delivery and sturdy build.",
+        "date": "2025-07-05",
+        "rating": 5
+      },
+      {
+        "id": 6,
+        "asin": "B123456789",
+        "text": "The handle broke after two uses. Very disappointed.",
+        "date": "2025-07-06",
+        "rating": 1
+      },
+      {
+        "id": 7,
+        "asin": "B123456789",
+        "text": "It heats water well, but the cord is too short.",
+        "date": "2025-07-07",
+        "rating": 3
+      },
+      {
+        "id": 8,
+        "asin": "B123456789",
+        "text": "Great value for the price. Highly recommend!",
+        "date": "2025-07-08",
+        "rating": 4
+      },
+      {
+        "id": 9,
+        "asin": "B123456789",
+        "text": "Stopped working after a month. Total waste of money.",
+        "date": "2025-07-09",
+        "rating": 1
+      },
+      {
+        "id": 10,
+        "asin": "B123456789",
+        "text": "Nice kettle, but the auto-shutoff is unreliable.",
+        "date": "2025-07-10",
+        "rating": 3
+      },
+      {
+        "id": 11,
+        "asin": "B123456789",
+        "text": "Fantastic purchase! Boils water in seconds.",
+        "date": "2025-07-11",
+        "rating": 5
+      },
+      {
+        "id": 12,
+        "asin": "B123456789",
+        "text": "The base gets too hot to touch. Safety concern.",
+        "date": "2025-07-12",
+        "rating": 2
+      }
+    ]
+  }
