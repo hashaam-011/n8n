@@ -1,0 +1,196 @@
+{
+  "name": "My workflow",
+  "nodes": [
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {}
+          ]
+        }
+      },
+      "id": "1849d3bf-6238-4b91-ad09-eb2b98d41929",
+      "name": "Schedule Trigger",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1,
+      "position": [
+        -144,
+        -288
+      ]
+    },
+    {
+      "parameters": {
+        "url": "http://localhost:3000/reviews?asin=B123456789",
+        "options": {}
+      },
+      "id": "abb325c9-d416-41ac-9824-473f071ec1fa",
+      "name": "Fetch Reviews",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 2,
+      "position": [
+        64,
+        -304
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "chat",
+        "requestOptions": {}
+      },
+      "id": "a25d704f-cdb7-451f-9d72-fc8d03d47978",
+      "name": "Analyze Sentiment",
+      "type": "n8n-nodes-base.openAi",
+      "typeVersion": 1,
+      "position": [
+        272,
+        -288
+      ],
+      "credentials": {
+        "openAiApi": {
+          "id": "YPFIXy702bcSwJry",
+          "name": "OpenAi account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "resource": "spreadsheet",
+        "title": "os",
+        "options": {}
+      },
+      "id": "7768f2f4-496c-4031-b6de-cbfacdbf0abc",
+      "name": "Create a spreadsheet",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 2,
+      "position": [
+        512,
+        -176
+      ],
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "CHztAUZIdqSPTLYe",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "boolean": [
+            {
+              "value1": "={{$node[\"Analyze Sentiment\"].json[\"sentiment\"] === \"negative\" && $node[\"Fetch Reviews\"].json[\"reviews\"].length > 10}}",
+              "value2": true
+            }
+          ]
+        }
+      },
+      "id": "6456de5c-03a3-4216-98b3-f6110432b08d",
+      "name": "Spike Detection",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 1,
+      "position": [
+        528,
+        -352
+      ]
+    },
+    {
+      "parameters": {
+        "channel": "C09711SLRCL",
+        "text": "good",
+        "otherOptions": {},
+        "attachments": []
+      },
+      "id": "1d7c769d-a865-4f99-b0c3-87a205f6e62a",
+      "name": "Send Slack Notification",
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 1,
+      "position": [
+        832,
+        -288
+      ],
+      "alwaysOutputData": true,
+      "executeOnce": true,
+      "credentials": {
+        "slackApi": {
+          "id": "6eopOVHaQakDrCwM",
+          "name": "Slack account"
+        }
+      },
+      "onError": "continueErrorOutput"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Schedule Trigger": {
+      "main": [
+        [
+          {
+            "node": "Fetch Reviews",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Fetch Reviews": {
+      "main": [
+        [
+          {
+            "node": "Analyze Sentiment",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Analyze Sentiment": {
+      "main": [
+        [
+          {
+            "node": "Create a spreadsheet",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Spike Detection",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Spike Detection": {
+      "main": [
+        [
+          {
+            "node": "Send Slack Notification",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create a spreadsheet": {
+      "main": [
+        [
+          {
+            "node": "Send Slack Notification",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "bde2e2da-5259-4a20-821f-84f1ff9531bd",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "682751b5981ccf6c0063e4cadcccf3334944f31ccc6297338a63d6dd014b0039"
+  },
+  "id": "lqCfSrTPFLxNut1Q",
+  "tags": []
+}
